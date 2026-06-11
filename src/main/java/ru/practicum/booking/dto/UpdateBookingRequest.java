@@ -1,11 +1,12 @@
 package ru.practicum.booking.dto;
 
 import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
+@Data
 public class UpdateBookingRequest {
     @Positive(message = "id не может быть отрицательным или равным 0")
     private Long id;

@@ -1,8 +1,11 @@
 package ru.practicum.booking.dto;
 
-import java.time.LocalDateTime;
 import jakarta.validation.constraints.Future;
+import lombok.Data;
 
+import java.time.LocalDateTime;
+
+@Data
 public class CreateBookingRequest {
     @Future(message = "Дата момента с которого вы хотите взять вещи должна начинаться в будущем")
     private LocalDateTime from;

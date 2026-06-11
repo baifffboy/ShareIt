@@ -1,9 +1,10 @@
 package ru.practicum.item.dto;
 
-import ru.practicum.user.model.User;
+import lombok.Data;
 
 import java.util.List;
 
+@Data
 public class ItemDto {
     private Long id;
     private String name;
