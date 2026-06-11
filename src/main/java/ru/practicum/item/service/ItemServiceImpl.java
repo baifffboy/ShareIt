@@ -28,13 +28,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto create(Long userId, CreateItemRequest createItemRequest) {
         User owner = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
-
-        Item item = ItemMapper.mapToItem(createItemRequest);
-        item.setOwner(owner);
-        item.setAvailable(true);
-        item.setCountOfRent(0L);
-
-        Item savedItem = itemRepository.save(item);
+        Item savedItem = itemRepository.save(ItemMapper.mapToItem(createItemRequest, owner));
         log.info("Создана вещь с id: {} для пользователя с id: {}", savedItem.getId(), userId);
         return ItemMapper.mapToItemDto(savedItem);
     }
@@ -43,25 +37,10 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto update(Long userId, UpdateItemRequest updateItemRequest) {
         Item existingItem = itemRepository.findById(updateItemRequest.getId())
                 .orElseThrow(() -> new NotFoundException("Вещь с id " + updateItemRequest.getId() + " не найдена"));
-
         if (!existingItem.getOwner().getId().equals(userId)) {
             throw new NotFoundException("Редактировать вещь может только её владелец");
         }
-
-        if (updateItemRequest.getName() != null && !updateItemRequest.getName().isBlank()) {
-            existingItem.setName(updateItemRequest.getName());
-        }
-        if (updateItemRequest.getDescription() != null && !updateItemRequest.getDescription().isBlank()) {
-            existingItem.setDescription(updateItemRequest.getDescription());
-        }
-        if (updateItemRequest.getIsAvailable() != null) {
-            existingItem.setAvailable(updateItemRequest.getIsAvailable());
-        }
-        if (updateItemRequest.getReview() != null && !updateItemRequest.getReview().isBlank()) {
-            existingItem.getReviews().add(updateItemRequest.getReview());
-        }
-
-        Item updatedItem = itemRepository.update(existingItem);
+        Item updatedItem = itemRepository.update(ItemMapper.mapToItem(existingItem, updateItemRequest));
         log.info("Обновлена вещь с id: {}", updatedItem.getId());
         return ItemMapper.mapToItemDto(updatedItem);
     }

@@ -34,7 +34,6 @@ public class ItemController {
             @PathVariable Long itemId,
             @Valid @RequestBody UpdateItemRequest updateItemRequest) {
         log.info("Отправлен запрос на обновление вещи с id: {} пользователем с id: {}", itemId, userId);
-        updateItemRequest.setId(itemId);
         return itemService.update(userId, updateItemRequest);
     }
 
