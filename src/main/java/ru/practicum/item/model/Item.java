@@ -3,6 +3,7 @@ package ru.practicum.item.model;
 import lombok.Data;
 import ru.practicum.user.model.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -11,7 +12,7 @@ public class Item {
     private String name;
     private String description;
     private boolean isAvailable;
-    private List<String> reviews;
+    private List<String> reviews = new ArrayList<>();
     private User owner;
     private Long countOfRent;
     // класс вещи - id, навзание вещи, описание, доступна?,

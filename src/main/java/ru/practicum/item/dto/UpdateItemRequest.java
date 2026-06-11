@@ -9,5 +9,6 @@ public class UpdateItemRequest {
     private Long id;
     private String name;
     private String description;
+    private Boolean isAvailable;
     private String review;
 }

@@ -1,0 +1,99 @@
+package ru.practicum.item.service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import ru.practicum.exception.NotFoundException;
+import ru.practicum.item.dao.ItemRepository;
+import ru.practicum.item.dto.CreateItemRequest;
+import ru.practicum.item.dto.ItemDto;
+import ru.practicum.item.dto.UpdateItemRequest;
+import ru.practicum.item.mapper.ItemMapper;
+import ru.practicum.item.model.Item;
+import ru.practicum.user.dao.UserRepository;
+import ru.practicum.user.model.User;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class ItemServiceImpl implements ItemService {
+
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
+
+    @Override
+    public ItemDto create(Long userId, CreateItemRequest createItemRequest) {
+        User owner = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
+
+        Item item = ItemMapper.mapToItem(createItemRequest);
+        item.setOwner(owner);
+        item.setAvailable(true);
+        item.setCountOfRent(0L);
+
+        Item savedItem = itemRepository.save(item);
+        log.info("Создана вещь с id: {} для пользователя с id: {}", savedItem.getId(), userId);
+        return ItemMapper.mapToItemDto(savedItem);
+    }
+
+    @Override
+    public ItemDto update(Long userId, UpdateItemRequest updateItemRequest) {
+        Item existingItem = itemRepository.findById(updateItemRequest.getId())
+                .orElseThrow(() -> new NotFoundException("Вещь с id " + updateItemRequest.getId() + " не найдена"));
+
+        if (!existingItem.getOwner().getId().equals(userId)) {
+            throw new NotFoundException("Редактировать вещь может только её владелец");
+        }
+
+        if (updateItemRequest.getName() != null && !updateItemRequest.getName().isBlank()) {
+            existingItem.setName(updateItemRequest.getName());
+        }
+        if (updateItemRequest.getDescription() != null && !updateItemRequest.getDescription().isBlank()) {
+            existingItem.setDescription(updateItemRequest.getDescription());
+        }
+        if (updateItemRequest.getIsAvailable() != null) {
+            existingItem.setAvailable(updateItemRequest.getIsAvailable());
+        }
+        if (updateItemRequest.getReview() != null && !updateItemRequest.getReview().isBlank()) {
+            existingItem.getReviews().add(updateItemRequest.getReview());
+        }
+
+        Item updatedItem = itemRepository.update(existingItem);
+        log.info("Обновлена вещь с id: {}", updatedItem.getId());
+        return ItemMapper.mapToItemDto(updatedItem);
+    }
+
+    @Override
+    public ItemDto findById(Long id) {
+        Item item = itemRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Вещь с id " + id + " не найдена"));
+        return ItemMapper.mapToItemDto(item);
+    }
+
+    @Override
+    public List<ItemDto> findByUserId(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("Пользователь с id " + userId + " не найден");
+        }
+        return itemRepository.findByOwnerId(userId).stream()
+                .map(ItemMapper::mapToItemDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ItemDto> search(String text) {
+        if (text == null || text.isBlank()) {
+            return List.of();
+        }
+        String lowerCaseText = text.toLowerCase();
+        return itemRepository.findAll().stream()
+                .filter(Item::isAvailable)
+                .filter(item -> item.getName().toLowerCase().contains(lowerCaseText) ||
+                        item.getDescription().toLowerCase().contains(lowerCaseText))
+                .map(ItemMapper::mapToItemDto)
+                .collect(Collectors.toList());
+    }
+}
