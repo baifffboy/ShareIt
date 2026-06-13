@@ -7,13 +7,17 @@ import ru.practicum.user.dto.UpdateUserRequest;
 import ru.practicum.user.dto.UserDto;
 import ru.practicum.user.model.User;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserMapper {
 
     public static UserDto mapToUserDto(User user) {
         UserDto userDto = new UserDto();
         userDto.setId(user.getId());
-        userDto.setNickname(user.getNickname());
+        userDto.setName(user.getName());
+        userDto.setEmail(user.getEmail());
         userDto.setDemandItem(user.getDemandItem());
         userDto.setSupplyItem(user.getSupplyItem());
         return userDto;
@@ -21,26 +25,24 @@ public class UserMapper {
 
     public static User mapToUser(CreateUserRequest createUserRequest) {
         User user = new User();
-        user.setNickname(createUserRequest.getNickname());
-        if (createUserRequest.getDemandItem() != null) {
-            user.setDemandItem(java.util.List.of(createUserRequest.getDemandItem()));
-        }
-        if (createUserRequest.getSupplyItem() != null) {
-            user.setSupplyItem(java.util.List.of(createUserRequest.getSupplyItem()));
-        }
+        user.setName(createUserRequest.getName());
+        user.setEmail(createUserRequest.getEmail());
+        if (createUserRequest.getDemandItem() != null)
+            user.setDemandItem(new ArrayList<>(List.of(createUserRequest.getDemandItem())));
+        if (createUserRequest.getSupplyItem() != null)
+            user.setSupplyItem(new ArrayList<>(List.of(createUserRequest.getSupplyItem())));
         return user;
     }
 
-    public static User mapToUser(UpdateUserRequest updateUserRequest) {
-        User user = new User();
-        user.setId(updateUserRequest.getId());
-        user.setNickname(updateUserRequest.getNickname());
-        if (updateUserRequest.getDemandItem() != null) {
-            user.setDemandItem(java.util.List.of(updateUserRequest.getDemandItem()));
-        }
-        if (updateUserRequest.getSupplyItem() != null) {
-            user.setSupplyItem(java.util.List.of(updateUserRequest.getSupplyItem()));
-        }
-        return user;
+    public static User mapToUser(User existingUser, UpdateUserRequest updateUserRequest) {
+        if (updateUserRequest.getName() != null)
+            existingUser.setName(updateUserRequest.getName());
+        if (updateUserRequest.getEmail() != null)
+            existingUser.setEmail(updateUserRequest.getEmail());
+        if (updateUserRequest.getDemandItem() != null)
+            existingUser.setDemandItem(new ArrayList<>(List.of(updateUserRequest.getDemandItem())));
+        if (updateUserRequest.getSupplyItem() != null)
+            existingUser.setSupplyItem(new ArrayList<>(List.of(updateUserRequest.getSupplyItem())));
+        return existingUser;
     }
 }

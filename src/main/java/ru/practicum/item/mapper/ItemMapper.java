@@ -32,10 +32,12 @@ public class ItemMapper {
     }
 
     public static Item mapToItem(Item existingItem, UpdateItemRequest updateItemRequest) {
-        existingItem.setId(updateItemRequest.getId());
-        existingItem.setName(updateItemRequest.getName());
-        existingItem.setDescription(updateItemRequest.getDescription());
-        existingItem.setAvailable(updateItemRequest.getIsAvailable());
+        if (updateItemRequest.getName() != null)
+            existingItem.setName(updateItemRequest.getName());
+        if (updateItemRequest.getDescription() != null)
+            existingItem.setDescription(updateItemRequest.getDescription());
+        if (updateItemRequest.getIsAvailable() != null)
+            existingItem.setAvailable(updateItemRequest.getIsAvailable());
         if (updateItemRequest.getReview() != null) existingItem.getReviews().add(updateItemRequest.getReview());
         return existingItem;
     }

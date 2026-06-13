@@ -22,7 +22,7 @@ public class UserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto createUser(@Valid @RequestBody CreateUserRequest createUserRequest) {
-        log.info("Отправлен запрос на создание пользователя с nickname: {}", createUserRequest.getNickname());
+        log.info("Отправлен запрос на создание пользователя с name: {}", createUserRequest.getName());
         return userService.create(createUserRequest);
     }
 
@@ -41,8 +41,7 @@ public class UserController {
     @PatchMapping("/{id}")
     public UserDto updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest updateUserRequest) {
         log.info("Отправлен запрос на обновление пользователя с id: {}", id);
-        updateUserRequest.setId(id);
-        return userService.update(updateUserRequest);
+        return userService.update(updateUserRequest, id);
     }
 
     @DeleteMapping("/{id}")

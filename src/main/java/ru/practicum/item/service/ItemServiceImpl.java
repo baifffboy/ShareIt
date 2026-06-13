@@ -34,9 +34,10 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto update(Long userId, UpdateItemRequest updateItemRequest) {
-        Item existingItem = itemRepository.findById(updateItemRequest.getId())
-                .orElseThrow(() -> new NotFoundException("Вещь с id " + updateItemRequest.getId() + " не найдена"));
+    public ItemDto update(Long userId, UpdateItemRequest updateItemRequest, Long itemId) {
+        updateItemRequest.setId(itemId);
+        Item existingItem = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Вещь с id " + itemId + " не найдена"));
         if (!existingItem.getOwner().getId().equals(userId)) {
             throw new NotFoundException("Редактировать вещь может только её владелец");
         }
